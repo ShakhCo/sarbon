@@ -63,7 +63,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-          <SarbonLogo />
+          <SarbonLogo height={28} />
           <p className="text-sm text-faint">
             © 2023 {t.footer.rights}
           </p>

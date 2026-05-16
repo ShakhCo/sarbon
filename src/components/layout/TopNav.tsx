@@ -46,7 +46,7 @@ export function TopNav() {
     <header className="sticky top-0 z-40 border-b border-line bg-card">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 px-4 lg:px-8">
         <div className="flex items-center gap-8">
-          <SarbonLogo />
+          <SarbonLogo priority height={30} />
           <nav className="hidden items-center gap-1 xl:flex">
             {links.map((l) => (
               <a
