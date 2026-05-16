@@ -30,10 +30,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — keep the example, ignore real secrets
+# env files — keep the example + docker defaults, ignore real secrets
 .env
 .env.*
 !.env.example
+!.env.docker
 
 # vercel
 .vercel

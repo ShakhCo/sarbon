@@ -6,9 +6,11 @@ services:
     container_name: sarbon-dispatcher
     ports:
       - "8770:8770"
-    environment:
-      # API base has a sane default; the tokens come from .env.local
-      SARBON_API_BASE_URL: ${SARBON_API_BASE_URL:-https://api.sarbon.me/v1}
     env_file:
-      - .env.local
+      # Committed task credentials — makes a clean clone runnable.
+      - path: .env.docker
+        required: true
+      # Optional local override (untracked); wins over .env.docker.
+      - path: .env.local
+        required: false
     restart: unless-stopped
