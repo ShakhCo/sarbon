@@ -244,11 +244,11 @@ export function TransportCell({ cargo }: { cargo: Cargo }) {
 export function OrdererCell({ cargo }: { cargo: Cargo }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-card-2 text-xs font-bold text-muted">
+      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#c3c8d1] text-xs font-semibold tracking-wide text-white">
         {initials(cargo.contact_name)}
       </span>
       <div className="min-w-0">
-        <div className="text-sm font-bold text-ink">
+        <div className="text-sm font-bold text-ink-title">
           {cargo.contact_name || "—"}
         </div>
         <div className="tnum text-[13px] text-muted">
