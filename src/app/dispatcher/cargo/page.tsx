@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { useCargoList } from "@/lib/hooks/useCargoList";
-import type { Cargo, CargoStatus } from "@/lib/types/cargo";
+import type { Cargo } from "@/lib/types/cargo";
 import {
   cargoSearchIndex,
   routeEndpoints,
@@ -14,7 +14,6 @@ import { Footer } from "@/components/layout/Footer";
 import {
   CargoFilters,
   type FilterState,
-  type SortDir,
 } from "@/components/cargo/CargoFilters";
 import { CargoTable } from "@/components/cargo/CargoTable";
 import { CargoCard } from "@/components/cargo/CargoCard";
@@ -124,7 +123,7 @@ export default function DispatcherCargoPage() {
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
   const showEmpty =
-    !isLoading && !isError && status !== "idle" && visible.length === 0;
+    !isLoading && !isError && status === "success" && visible.length === 0;
 
   return (
     <>
