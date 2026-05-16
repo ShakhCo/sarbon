@@ -18,16 +18,25 @@ export function CargoTable({ items }: { items: Cargo[] }) {
   return (
     <div className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-card shadow-card">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1080px] border-collapse text-left">
+        <table className="w-full min-w-[1140px] table-fixed border-collapse text-left">
+          <colgroup>
+            <col className="w-[14%]" />
+            <col className="w-[14%]" />
+            <col className="w-[12%]" />
+            <col className="w-[18%]" />
+            <col className="w-[20%]" />
+            <col className="w-[17%]" />
+            <col className="w-[5%]" />
+          </colgroup>
           <thead>
-            <tr className="border-b border-line">
+            <tr className="border-b border-line bg-card-2">
               <Th>{t.table.from}</Th>
               <Th>{t.table.to}</Th>
               <Th>{t.table.price}</Th>
               <Th>{t.table.cargo}</Th>
               <Th>{t.table.transport}</Th>
               <Th>{t.table.orderer}</Th>
-              <Th className="w-[1%]" />
+              <Th />
             </tr>
           </thead>
           <tbody>
@@ -78,7 +87,10 @@ function Th({
   className?: string;
 }) {
   return (
-    <th scope="col" className={`col-label px-4 py-3.5 ${className}`}>
+    <th
+      scope="col"
+      className={`col-label whitespace-nowrap px-4 py-3 ${className}`}
+    >
       {children}
     </th>
   );

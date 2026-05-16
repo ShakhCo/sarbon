@@ -5,9 +5,9 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Cargo, RoutePoint } from "@/lib/types/cargo";
 import {
   cargoTypeName,
-  countryFlag,
   countryLabel,
   directionLabels,
+  flagUrl,
   formatRouteDateTime,
   formatVolume,
   formatWeight,
@@ -16,27 +16,48 @@ import {
   transportLine,
 } from "@/lib/utils/format";
 
-/* Place: flag · ISO3 · city code, with date/time underneath. */
+function Flag({ code }: { code: string | null }) {
+  const url = flagUrl(code);
+  if (!url) {
+    return (
+      <span
+        className="mt-0.5 inline-block h-3 w-[18px] rounded-[2px] bg-card-2"
+        aria-hidden
+      />
+    );
+  }
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={url}
+      alt={countryLabel(code)}
+      width={18}
+      height={13}
+      loading="lazy"
+      className="mt-0.5 h-[13px] w-[18px] shrink-0 rounded-[2px] object-cover ring-1 ring-black/5"
+    />
+  );
+}
+
+/* Place: flag · ISO3 · city code on one line, date/time underneath. */
 export function PlaceCell({ point }: { point: RoutePoint | null }) {
   if (!point) return <span className="text-faint">—</span>;
   return (
-    <div className="flex items-start gap-2.5">
-      <span className="mt-0.5 text-base leading-none" aria-hidden>
-        {countryFlag(point.country_code)}
-      </span>
+    <div className="flex items-start gap-2">
+      <Flag code={point.country_code} />
       <div className="min-w-0">
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
           <span className="col-label !text-faint">
             {countryLabel(point.country_code)}
           </span>
           <span
-            className="truncate text-[15px] font-bold text-ink-title"
+            className="text-[15px] font-bold text-ink-title"
             title={point.address}
           >
             {point.city_code || point.city_name || "—"}
           </span>
         </div>
-        <div className="tnum mt-1 text-xs text-muted">
+        <div className="tnum mt-1 whitespace-nowrap text-[13px] text-muted">
           {formatRouteDateTime(point.date)}
         </div>
       </div>
@@ -55,10 +76,12 @@ export function PriceCell({ cargo }: { cargo: Cargo }) {
   }
   return (
     <div>
-      <div className="tnum text-[15px] font-extrabold text-brand">
-        {p.amount}
+      <div className="flex flex-wrap items-baseline gap-x-1.5">
+        <span className="tnum whitespace-nowrap text-[15px] font-extrabold text-brand">
+          {p.amount}
+        </span>
         {p.method && (
-          <span className="ml-1.5 text-[13px] font-semibold text-ink">
+          <span className="whitespace-nowrap text-[13px] font-medium text-ink">
             {p.method}
           </span>
         )}
@@ -72,44 +95,56 @@ export function PriceCell({ cargo }: { cargo: Cargo }) {
 
 function IconWeight() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
       <path
-        d="M6 6.5h8l2.5 9.5H3.5L6 6.5Z"
+        d="M5.5 7h9l1.6 9.5H3.9L5.5 7Z"
         stroke="currentColor"
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
-      <circle cx="10" cy="5" r="2" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M8 7a2 2 0 0 1 4 0"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 function IconCube() {
   return (
-    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
       <path
-        d="M10 2.5 17 6v8l-7 3.5L3 14V6l7-3.5Z"
+        d="M10 2.6 16.8 6v8L10 17.4 3.2 14V6L10 2.6Z"
         stroke="currentColor"
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
-      <path d="M3 6l7 3.5L17 6M10 9.5v8" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M3.2 6 10 9.5 16.8 6M10 9.5v7.9"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
     </svg>
   );
 }
 
+/** YUK = weight · volume, then cargo-type (+ shipment) line. */
 export function CargoCell({ cargo }: { cargo: Cargo }) {
   const { lang } = useI18n();
   const type = cargoTypeName(cargo.cargo_type, lang);
-  const load = directionLabels(cargo.loading_types, lang);
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-semibold text-ink">
+      <div className="flex items-center gap-2.5 text-sm">
         <span className="inline-flex items-center gap-1.5 text-muted">
           <IconWeight />
           <span className="tnum font-bold text-ink">
             {formatWeight(cargo.weight, lang)}
           </span>
+        </span>
+        <span className="text-faint" aria-hidden>
+          ·
         </span>
         <span className="inline-flex items-center gap-1.5 text-muted">
           <IconCube />
@@ -120,7 +155,9 @@ export function CargoCell({ cargo }: { cargo: Cargo }) {
       </div>
       <div className="mt-1.5 text-[13px] text-muted">
         {type}
-        {load && <span className="text-faint"> • {load}</span>}
+        {cargo.shipment_type && (
+          <span className="text-faint"> • {cargo.shipment_type}</span>
+        )}
         {cargo.adr_enabled && (
           <span className="ml-2 rounded bg-red-soft px-1.5 py-0.5 text-[11px] font-bold text-red">
             ADR{cargo.adr_class ? ` ${cargo.adr_class}` : ""}
@@ -133,7 +170,7 @@ export function CargoCell({ cargo }: { cargo: Cargo }) {
 
 function IconTruck() {
   return (
-    <svg width="17" height="17" viewBox="0 0 22 22" fill="none" aria-hidden>
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" aria-hidden>
       <path
         d="M2 5.5h10v9H2v-9Zm10 3h4l3 3v3h-7v-6Z"
         stroke="currentColor"
@@ -142,6 +179,26 @@ function IconTruck() {
       />
       <circle cx="6" cy="16" r="1.8" stroke="currentColor" strokeWidth="1.4" />
       <circle cx="15.5" cy="16" r="1.8" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
+function IconLoad({ up }: { up: boolean }) {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+      className={up ? "" : "rotate-180"}
+    >
+      <path
+        d="M8 2.5v8m0-8L4.5 6M8 2.5 11.5 6M3 13.5h10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -161,21 +218,21 @@ export function TransportCell({ cargo }: { cargo: Cargo }) {
         <span>{line}</span>
       </div>
       {(loading || unloading) && (
-        <div className="mt-1.5 space-y-0.5 text-xs text-muted">
+        <div className="mt-1.5 space-y-1 text-[13px] text-muted">
           {loading && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-faint" aria-hidden>
-                ↥
+            <div className="flex items-start gap-1.5">
+              <span className="mt-0.5 shrink-0 text-faint">
+                <IconLoad up />
               </span>
-              {loading}
+              <span>{loading}</span>
             </div>
           )}
           {unloading && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-faint" aria-hidden>
-                ↧
+            <div className="flex items-start gap-1.5">
+              <span className="mt-0.5 shrink-0 text-faint">
+                <IconLoad up={false} />
               </span>
-              {unloading}
+              <span>{unloading}</span>
             </div>
           )}
         </div>
@@ -187,14 +244,14 @@ export function TransportCell({ cargo }: { cargo: Cargo }) {
 export function OrdererCell({ cargo }: { cargo: Cargo }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-xs font-bold text-brand-strong">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-card-2 text-xs font-bold text-muted">
         {initials(cargo.contact_name)}
       </span>
       <div className="min-w-0">
-        <div className="truncate text-sm font-bold text-ink">
+        <div className="text-sm font-bold text-ink">
           {cargo.contact_name || "—"}
         </div>
-        <div className="tnum truncate text-xs text-muted">
+        <div className="tnum text-[13px] text-muted">
           {cargo.contact_phone || "—"}
         </div>
       </div>
@@ -213,13 +270,19 @@ export function RowActions({ liked = false }: { liked?: boolean }) {
         aria-label="favorite"
         className="grid size-9 place-items-center rounded-lg text-faint transition-colors hover:bg-card-2 hover:text-red"
       >
-        <svg width="18" height="18" viewBox="0 0 22 22" fill={fav ? "currentColor" : "none"} aria-hidden>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 22 22"
+          fill={fav ? "currentColor" : "none"}
+          aria-hidden
+          className={fav ? "text-red" : ""}
+        >
           <path
             d="M11 19s-7-4.3-7-9.2A4.3 4.3 0 0 1 11 7a4.3 4.3 0 0 1 7 2.8C18 14.7 11 19 11 19Z"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinejoin="round"
-            className={fav ? "text-red" : ""}
           />
         </svg>
       </button>

@@ -87,13 +87,12 @@ export function countryLabel(code: string | null | undefined): string {
   return ISO3[c] ?? c;
 }
 
-export function countryFlag(code: string | null | undefined): string {
-  if (!code) return "🏳️";
-  const c = code.trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(c)) return "🏳️";
-  return String.fromCodePoint(
-    ...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65),
-  );
+/** Real flag image (consistent across OSes, unlike emoji flags). */
+export function flagUrl(code: string | null | undefined): string | null {
+  if (!code) return null;
+  const c = code.trim().toLowerCase();
+  if (!/^[a-z]{2}$/.test(c)) return null;
+  return `https://flagcdn.com/w40/${c}.png`;
 }
 
 /* ── payment ──────────────────────────────────────────────── */
@@ -105,10 +104,12 @@ const CURRENCY_SYMBOL: Record<string, string> = {
 };
 
 function moneyText(amount: number, currency: string, lang: Lang): string {
-  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(amount);
   const sym = CURRENCY_SYMBOL[currency];
-  if (currency === "USD") return `$${n}`;
-  if (sym) return `${sym}${n}`;
+  if (sym) {
+    // Symbol currencies use comma grouping to match the product ($3,000).
+    return `${sym}${new Intl.NumberFormat("en-US").format(amount)}`;
+  }
+  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(amount);
   return `${n} ${currency}`;
 }
 
@@ -163,14 +164,11 @@ export function directionLabels(types: string[], lang: Lang): string {
   return types.map((x) => load[x] ?? x).join(", ");
 }
 
-/** Avatar initials from a contact name like "John_Doe" → "JD". */
+/** Avatar initials = first two letters, product-style ("John_Doe" → "JO"). */
 export function initials(name: string | null): string {
   if (!name) return "—";
-  const words = name.split(/[\s_.-]+/).filter(Boolean);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-  return name.replace(/[^a-zA-Zа-яА-Я]/g, "").slice(0, 3).toUpperCase() || "—";
+  const letters = name.replace(/[^a-zA-Zа-яА-Я0-9]/g, "");
+  return letters.slice(0, 2).toUpperCase() || "—";
 }
 
 /* ── route ────────────────────────────────────────────────── */

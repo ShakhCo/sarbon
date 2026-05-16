@@ -73,6 +73,7 @@ export interface Cargo {
   weight: number | null;
   volume: number | null;
   truck_type: string | null;
+  shipment_type: string | null;
   trailer_plate_type: string | null;
   power_plate_type: string | null;
   adr_enabled: boolean;
