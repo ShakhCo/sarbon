@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────
+   SARBON dispatcher — "freight control panel"
+   Warm paper · deep ink · safety-amber accent · hairline grid
+   ─────────────────────────────────────────────────────────── */
+
+:root {
+  --paper: #f7f5ef;
+  --paper-grid: #ece8dc;
+  --surface: #fffefb;
+  --surface-2: #f3f0e7;
+  --ink: #1a1712;
+  --ink-soft: #6b6357;
+  --ink-faint: #9a9183;
+  --line: #e3ddcd;
+  --line-strong: #d2cab5;
+
+  --amber: #e0590b;
+  --amber-bright: #f5750f;
+  --amber-soft: #fbecdb;
+  --amber-line: #f1c79b;
+
+  --green: #2f7a4d;
+  --green-soft: #e6f1ea;
+  --green-line: #b8d8c5;
+
+  --blue: #1f5fa8;
+  --blue-soft: #e6eef7;
+
+  --red: #c0392b;
+  --red-soft: #f8e8e6;
+  --red-line: #e9c2bc;
+
+  --shadow-card: 0 1px 0 0 var(--line), 0 2px 8px -4px rgba(26, 23, 18, 0.08);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-amber: var(--amber);
+  --color-amber-bright: var(--amber-bright);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-line: var(--amber-line);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-green-line: var(--green-line);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
+  --color-red-line: var(--red-line);
+
+  --font-display: var(--font-geologica);
+  --font-sans: var(--font-onest);
+  --font-mono: var(--font-jbmono);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--paper);
+  /* faint engineering grid — atmosphere, not noise */
+  background-image:
+    linear-gradient(var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: -1px -1px;
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Uppercase mono micro-label used across the UI */
+.label-mono {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.data-mono {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Custom scrollbar — keeps the industrial feel */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid var(--paper);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .skeleton::after,
+  .spin {
+    animation: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
