@@ -15,7 +15,8 @@ import {
   CargoFilters,
   type FilterState,
 } from "@/components/cargo/CargoFilters";
-import { CargoTable } from "@/components/cargo/CargoTable";
+import { DataTable } from "@/components/cargo/DataTable";
+import { useCargoColumns } from "./columns";
 import { CargoCard } from "@/components/cargo/CargoCard";
 import { Pagination } from "@/components/cargo/Pagination";
 import { LoadingSkeleton } from "@/components/states/LoadingSkeleton";
@@ -44,6 +45,7 @@ function cityCode(p: { city_code: string; city_name: string } | null) {
 
 export default function DispatcherCargoPage() {
   const { t, lang } = useI18n();
+  const columns = useCargoColumns();
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
@@ -187,7 +189,7 @@ export default function DispatcherCargoPage() {
         ) : (
           <>
             <div className="hidden lg:block">
-              <CargoTable items={visible} />
+              <DataTable columns={columns} data={visible} />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:hidden">
               {visible.map((c) => (
