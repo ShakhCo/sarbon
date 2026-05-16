@@ -5,135 +5,236 @@ import type { CargoStatus } from "@/lib/types/cargo";
 
 export type SortDir = "created_at:desc" | "created_at:asc";
 
-interface CargoFiltersProps {
+export interface FilterState {
+  fromCity: string;
+  toCity: string;
+  transport: string;
+  weightMin: string;
+  weightMax: string;
+  dateStart: string;
+  dateEnd: string;
+  favorite: boolean;
   status: CargoStatus;
-  onStatusChange: (status: CargoStatus) => void;
   sort: SortDir;
-  onSortChange: (sort: SortDir) => void;
-  search: string;
-  onSearchChange: (value: string) => void;
+}
+
+interface Props {
+  value: FilterState;
+  onChange: <K extends keyof FilterState>(key: K, v: FilterState[K]) => void;
+  cityOptions: string[];
+  transportOptions: string[];
   onReset: () => void;
   dirty: boolean;
 }
 
-const STATUSES: CargoStatus[] = ["SEARCHING_ALL", "COMPLETED"];
+const fieldCls =
+  "h-11 w-full rounded-[10px] border border-input-line bg-card px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-brand";
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="mb-2 block text-sm font-semibold text-ink">
+      {children}
+    </label>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg
+      className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-faint"
+      width="11"
+      height="7"
+      viewBox="0 0 11 7"
+      fill="none"
+      aria-hidden
+    >
+      <path d="M1 1l4.5 4.5L10 1" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function Select({
+  value,
+  onChange,
+  placeholder,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${fieldCls} appearance-none pr-9 ${
+          value === "" ? "text-faint" : ""
+        }`}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value} className="text-ink">
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <Chevron />
+    </div>
+  );
+}
 
 export function CargoFilters({
-  status,
-  onStatusChange,
-  sort,
-  onSortChange,
-  search,
-  onSearchChange,
+  value,
+  onChange,
+  cityOptions,
+  transportOptions,
   onReset,
   dirty,
-}: CargoFiltersProps) {
+}: Props) {
   const { t } = useI18n();
-
-  const statusLabel: Record<string, string> = {
-    SEARCHING_ALL: t.filters.statusSearching,
-    COMPLETED: t.filters.statusCompleted,
-  };
+  const cityOpts = cityOptions.map((c) => ({ value: c, label: c }));
+  const transportOpts = transportOptions.map((c) => ({ value: c, label: c }));
 
   return (
     <section
-      aria-label={t.filters.title}
-      className="border border-line bg-surface"
+      aria-label={t.filters.status}
+      className="rounded-[var(--radius-card)] border border-line bg-card p-5 shadow-card sm:p-6"
     >
-      <div className="flex flex-wrap items-end gap-x-6 gap-y-4 p-4 sm:p-5">
-        {/* Status — drives the API `status` query */}
+      {/* Row 1 */}
+      <div className="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
         <div>
-          <label className="label-mono mb-2 block">{t.filters.status}</label>
-          <div className="flex border border-line-strong">
-            {STATUSES.map((s, i) => {
-              const active = s === status;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => onStatusChange(s)}
-                  aria-pressed={active}
-                  className={[
-                    "px-3.5 py-2 text-sm font-semibold transition-colors",
-                    i > 0 ? "border-l border-line-strong" : "",
-                    active
-                      ? "bg-ink text-paper"
-                      : "bg-surface text-ink-soft hover:bg-surface-2 hover:text-ink",
-                  ].join(" ")}
-                >
-                  {statusLabel[s]}
-                </button>
-              );
-            })}
-          </div>
+          <Label>{t.filters.fromCity}</Label>
+          <Select
+            value={value.fromCity}
+            onChange={(v) => onChange("fromCity", v)}
+            placeholder={t.filters.fromCityPh}
+            options={cityOpts}
+          />
         </div>
-
-        {/* Sort — drives the API `sort` query */}
         <div>
-          <label htmlFor="sort" className="label-mono mb-2 block">
-            {t.filters.sort}
-          </label>
-          <div className="relative">
-            <select
-              id="sort"
-              value={sort}
-              onChange={(e) => onSortChange(e.target.value as SortDir)}
-              className="appearance-none border border-line-strong bg-surface py-2 pl-3.5 pr-9 text-sm font-medium text-ink hover:bg-surface-2 focus:outline-none"
-            >
-              <option value="created_at:desc">{t.filters.sortNewest}</option>
-              <option value="created_at:asc">{t.filters.sortOldest}</option>
-            </select>
-            <svg
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint"
-              width="11"
-              height="7"
-              viewBox="0 0 11 7"
-              fill="none"
-              aria-hidden
-            >
-              <path d="M1 1l4.5 4.5L10 1" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-          </div>
+          <Label>{t.filters.toCity}</Label>
+          <Select
+            value={value.toCity}
+            onChange={(v) => onChange("toCity", v)}
+            placeholder={t.filters.toCityPh}
+            options={cityOpts}
+          />
         </div>
-
-        {/* Search — client-side filter over the loaded page */}
-        <div className="min-w-[200px] flex-1">
-          <label htmlFor="search" className="label-mono mb-2 block">
-            {t.filters.search}
-          </label>
-          <div className="relative">
-            <svg
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-              width="15"
-              height="15"
-              viewBox="0 0 15 15"
-              fill="none"
-              aria-hidden
-            >
-              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M10 10l4 4" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
+        <div>
+          <Label>{t.filters.transport}</Label>
+          <Select
+            value={value.transport}
+            onChange={(v) => onChange("transport", v)}
+            placeholder={t.filters.transportPh}
+            options={transportOpts}
+          />
+        </div>
+        <div>
+          <Label>{t.filters.weight}</Label>
+          <div className="flex gap-3">
             <input
-              id="search"
-              type="text"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={t.filters.searchPlaceholder}
-              className="w-full border border-line-strong bg-surface py-2 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint focus:outline-none"
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={value.weightMin}
+              onChange={(e) => onChange("weightMin", e.target.value)}
+              placeholder={t.filters.min}
+              className={fieldCls}
+            />
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={value.weightMax}
+              onChange={(e) => onChange("weightMax", e.target.value)}
+              placeholder={t.filters.max}
+              className={fieldCls}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2 */}
+      <div className="mt-4 grid grid-cols-1 items-end gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+        <div>
+          <Label>{t.filters.date}</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={value.dateStart}
+              onChange={(e) => onChange("dateStart", e.target.value)}
+              className={`${fieldCls} tnum`}
+              aria-label={t.filters.dateStart}
+            />
+            <span className="text-faint">→</span>
+            <input
+              type="date"
+              value={value.dateEnd}
+              onChange={(e) => onChange("dateEnd", e.target.value)}
+              className={`${fieldCls} tnum`}
+              aria-label={t.filters.dateEnd}
             />
           </div>
         </div>
 
-        {dirty && (
+        <label className="flex h-11 cursor-pointer select-none items-center gap-2.5 text-sm font-medium text-ink">
+          <input
+            type="checkbox"
+            checked={value.favorite}
+            onChange={(e) => onChange("favorite", e.target.checked)}
+            className="size-[18px] accent-brand"
+          />
+          {t.filters.favorite}
+        </label>
+
+        <div>
+          <Label>{t.filters.status}</Label>
+          <div className="relative">
+            <select
+              value={value.status}
+              onChange={(e) =>
+                onChange("status", e.target.value as CargoStatus)
+              }
+              className={`${fieldCls} appearance-none pr-9`}
+            >
+              <option value="SEARCHING_ALL">
+                {t.filters.statusSearching}
+              </option>
+              <option value="COMPLETED">{t.filters.statusCompleted}</option>
+            </select>
+            <Chevron />
+          </div>
+        </div>
+
+        <div>
+          <Label>{t.filters.sort}</Label>
+          <div className="relative">
+            <select
+              value={value.sort}
+              onChange={(e) => onChange("sort", e.target.value as SortDir)}
+              className={`${fieldCls} appearance-none pr-9`}
+            >
+              <option value="created_at:desc">{t.filters.sortNewest}</option>
+              <option value="created_at:asc">{t.filters.sortOldest}</option>
+            </select>
+            <Chevron />
+          </div>
+        </div>
+      </div>
+
+      {dirty && (
+        <div className="mt-4 flex justify-end">
           <button
             type="button"
             onClick={onReset}
-            className="data-mono py-2 text-xs font-semibold uppercase tracking-wide text-amber hover:underline"
+            className="text-sm font-semibold text-brand transition-colors hover:text-brand-strong"
           >
             ✕ {t.filters.reset}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

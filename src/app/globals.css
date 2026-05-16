@@ -1,65 +1,75 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────────────────
-   SARBON dispatcher — "freight control panel"
-   Warm paper · deep ink · safety-amber accent · hairline grid
+   SARBON — product UI (clean light SaaS, blue/green brand)
    ─────────────────────────────────────────────────────────── */
 
 :root {
-  --paper: #f7f5ef;
-  --paper-grid: #ece8dc;
-  --surface: #fffefb;
-  --surface-2: #f3f0e7;
-  --ink: #1a1712;
-  --ink-soft: #6b6357;
-  --ink-faint: #9a9183;
-  --line: #e3ddcd;
-  --line-strong: #d2cab5;
+  --bg: #f4f5f8;
+  --card: #ffffff;
+  --card-2: #f8f9fb;
 
-  --amber: #e0590b;
-  --amber-bright: #f5750f;
-  --amber-soft: #fbecdb;
-  --amber-line: #f1c79b;
+  --ink: #1b2433;
+  --ink-title: #16243f;
+  --muted: #64748b;
+  --faint: #94a3b8;
 
-  --green: #2f7a4d;
-  --green-soft: #e6f1ea;
-  --green-line: #b8d8c5;
+  --line: #ebeef3;
+  --line-2: #e2e6ee;
+  --input-line: #dfe3eb;
 
-  --blue: #1f5fa8;
-  --blue-soft: #e6eef7;
+  --brand: #2f6bff;
+  --brand-strong: #1f53e0;
+  --brand-soft: #eaf0ff;
 
-  --red: #c0392b;
-  --red-soft: #f8e8e6;
-  --red-line: #e9c2bc;
+  --green: #1fae5a;
+  --green-strong: #16934a;
+  --green-soft: #e9f8ef;
 
-  --shadow-card: 0 1px 0 0 var(--line), 0 2px 8px -4px rgba(26, 23, 18, 0.08);
+  --amber: #e08a1e;
+  --amber-soft: #fdf2e0;
+  --red: #dc3a3a;
+  --red-soft: #fdeded;
+
+  --radius-card: 16px;
+  --radius-ctl: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 16px -8px rgba(16, 24, 40, 0.1);
+  --shadow-pop: 0 8px 28px -8px rgba(16, 24, 40, 0.22);
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
   --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-ink-faint: var(--ink-faint);
+  --color-ink-title: var(--ink-title);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
   --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-amber: var(--amber);
-  --color-amber-bright: var(--amber-bright);
-  --color-amber-soft: var(--amber-soft);
-  --color-amber-line: var(--amber-line);
+  --color-line-2: var(--line-2);
+  --color-input-line: var(--input-line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
   --color-green: var(--green);
+  --color-green-strong: var(--green-strong);
   --color-green-soft: var(--green-soft);
-  --color-green-line: var(--green-line);
-  --color-blue: var(--blue);
-  --color-blue-soft: var(--blue-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
   --color-red: var(--red);
   --color-red-soft: var(--red-soft);
-  --color-red-line: var(--red-line);
 
-  --font-display: var(--font-geologica);
-  --font-sans: var(--font-onest);
-  --font-mono: var(--font-jbmono);
+  --radius-card: var(--radius-card);
+  --radius-ctl: var(--radius-ctl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+
+  --font-sans: var(--font-manrope);
 }
 
 * {
@@ -71,47 +81,37 @@ html {
 }
 
 body {
-  background-color: var(--paper);
-  /* faint engineering grid — atmosphere, not noise */
-  background-image:
-    linear-gradient(var(--paper-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
-  background-size: 56px 56px;
-  background-position: -1px -1px;
+  background-color: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Uppercase mono micro-label used across the UI */
-.label-mono {
-  font-family: var(--font-mono), monospace;
+.col-label {
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 500;
+  color: var(--faint);
 }
 
-.data-mono {
-  font-family: var(--font-mono), monospace;
+.tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
 
-/* Custom scrollbar — keeps the industrial feel */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-color: var(--line-2) transparent;
 }
 *::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
+  height: 9px;
+  width: 9px;
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border: 3px solid var(--paper);
+  background: var(--line-2);
+  border-radius: 9px;
 }
 
 @keyframes shimmer {
@@ -122,7 +122,8 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--surface-2);
+  background: #eef1f5;
+  border-radius: 6px;
 }
 .skeleton::after {
   content: "";
@@ -132,7 +133,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0.7),
     transparent
   );
   animation: shimmer 1.4s infinite;
@@ -141,7 +142,7 @@ body {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -149,7 +150,7 @@ body {
   }
 }
 .rise {
-  animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes spin {
@@ -158,7 +159,7 @@ body {
   }
 }
 .spin {
-  animation: spin 0.9s linear infinite;
+  animation: spin 0.85s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -170,6 +171,6 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--amber);
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }

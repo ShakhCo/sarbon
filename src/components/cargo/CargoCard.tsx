@@ -2,72 +2,55 @@
 
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Cargo } from "@/lib/types/cargo";
+import { routeEndpoints } from "@/lib/utils/format";
 import {
-  cargoTypeName,
-  formatVolume,
-  formatWeight,
-  timeAgo,
-} from "@/lib/utils/format";
-import { RoutePath } from "./RoutePath";
-import { StatusBadge } from "./StatusBadge";
-import { CargoBadges } from "./CargoBadges";
-import { CargoPayment } from "./CargoPayment";
+  CargoCell,
+  OrdererCell,
+  PlaceCell,
+  PriceCell,
+  RowActions,
+  TransportCell,
+} from "./CargoCells";
 
 export function CargoCard({ cargo, index }: { cargo: Cargo; index: number }) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
+  const { origin, destination } = routeEndpoints(cargo.route_points);
 
   return (
     <article
-      className="rise border border-line bg-surface"
-      style={{ animationDelay: `${Math.min(index, 10) * 35}ms` }}
+      className="rise overflow-hidden rounded-[var(--radius-card)] border border-line bg-card shadow-card"
+      style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
-      <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
-        <div className="min-w-0">
-          <div className="font-display text-base font-semibold leading-tight text-ink">
-            {cargoTypeName(cargo.cargo_type, lang)}
-          </div>
-          {(cargo.name || cargo.comment) && (
-            <div className="mt-0.5 line-clamp-1 text-xs text-ink-soft">
-              {cargo.name || cargo.comment}
-            </div>
-          )}
-        </div>
-        <StatusBadge status={cargo.status} />
+      <div className="flex items-start justify-between gap-3 border-b border-line p-4">
+        <PriceCell cargo={cargo} />
+        <RowActions liked={cargo.is_liked} />
       </div>
 
-      <div className="border-b border-line px-4 py-4">
-        <RoutePath points={cargo.route_points} />
-      </div>
-
-      <div className="grid grid-cols-3 divide-x divide-line border-b border-line text-center">
-        <Metric label={t.table.weight} value={formatWeight(cargo.weight, lang)} />
-        <Metric label={t.table.volume} value={formatVolume(cargo.volume, lang)} />
-        <Metric
-          label={t.table.vehicle}
-          value={cargo.truck_type || "—"}
-        />
-      </div>
-
-      <div className="flex items-end justify-between gap-3 px-4 py-3">
+      <div className="grid grid-cols-2 gap-4 border-b border-line p-4">
         <div>
-          <CargoBadges cargo={cargo} />
-          <div className="data-mono mt-2 text-[11px] text-ink-faint">
-            {timeAgo(cargo.created_at, lang)}
-          </div>
+          <div className="col-label mb-1.5">{t.table.from}</div>
+          <PlaceCell point={origin} />
         </div>
-        <CargoPayment payment={cargo.payment} align="right" />
+        <div>
+          <div className="col-label mb-1.5">{t.table.to}</div>
+          <PlaceCell point={destination} />
+        </div>
+      </div>
+
+      <div className="space-y-3 border-b border-line p-4">
+        <div>
+          <div className="col-label mb-1.5">{t.table.cargo}</div>
+          <CargoCell cargo={cargo} />
+        </div>
+        <div>
+          <div className="col-label mb-1.5">{t.table.transport}</div>
+          <TransportCell cargo={cargo} />
+        </div>
+      </div>
+
+      <div className="p-4">
+        <OrdererCell cargo={cargo} />
       </div>
     </article>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="px-2 py-3">
-      <div className="label-mono">{label}</div>
-      <div className="data-mono mt-1 text-sm font-semibold text-ink">
-        {value}
-      </div>
-    </div>
   );
 }

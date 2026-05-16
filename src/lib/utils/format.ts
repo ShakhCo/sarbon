@@ -1,5 +1,10 @@
-import type { Cargo, CargoTypeRef, RoutePoint } from "@/lib/types/cargo";
-import type { Lang } from "@/lib/i18n/translations";
+import type {
+  Cargo,
+  CargoPayment,
+  CargoTypeRef,
+  RoutePoint,
+} from "@/lib/types/cargo";
+import { TRANSLATIONS, type Lang } from "@/lib/i18n/translations";
 
 const LOCALE_BY_LANG: Record<Lang, string> = {
   uz: "uz-UZ",
@@ -18,60 +23,31 @@ export function cargoTypeName(type: CargoTypeRef | null, lang: Lang): string {
   return byLang[lang] || type.name_en || type.name_ru || type.code || "—";
 }
 
-/** Compact money formatting with currency suffix (e.g. "1 500 000 UZS"). */
-export function formatMoney(
-  amount: number | null | undefined,
-  currency: string,
-  lang: Lang,
-): string {
-  if (amount == null) return "—";
-  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang], {
-    maximumFractionDigits: 0,
-  }).format(amount);
-  return `${n} ${currency}`;
-}
-
 export function formatWeight(weight: number | null, lang: Lang): string {
   if (weight == null) return "—";
-  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(weight);
-  return `${n} t`;
+  return `${new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(weight)} t`;
 }
 
 export function formatVolume(volume: number | null, lang: Lang): string {
   if (volume == null) return "—";
-  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(volume);
-  return `${n} m³`;
+  return `${new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(volume)} m³`;
 }
 
-/** "16 May, 18:37" — short, dispatcher-friendly. */
-export function formatDateTime(iso: string | null, lang: Lang): string {
+/** "05.05.2026 05:00" — matches the Sarbon product table. */
+export function formatRouteDateTime(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat(LOCALE_BY_LANG[lang], {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(
+    d.getHours(),
+  )}:${p(d.getMinutes())}`;
 }
 
-export function formatDate(iso: string | null, lang: Lang): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat(LOCALE_BY_LANG[lang], {
-    day: "numeric",
-    month: "short",
-  }).format(d);
-}
-
-/** Relative time like "2h ago" / "3d ago" with a sensible fallback. */
 export function timeAgo(iso: string, lang: Lang): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  const diffMs = Date.now() - d.getTime();
-  const mins = Math.round(diffMs / 60000);
+  const mins = Math.round((Date.now() - d.getTime()) / 60000);
   const rtf = new Intl.RelativeTimeFormat(LOCALE_BY_LANG[lang], {
     numeric: "auto",
   });
@@ -79,11 +55,126 @@ export function timeAgo(iso: string, lang: Lang): string {
   const hours = Math.round(mins / 60);
   if (Math.abs(hours) < 24) return rtf.format(-hours, "hour");
   const days = Math.round(hours / 24);
-  if (Math.abs(days) < 30) return rtf.format(-days, "day");
-  return formatDate(iso, lang);
+  return rtf.format(-days, "day");
 }
 
-/** First LOAD point and last UNLOAD point — the headline origin → destination. */
+/* ── ISO-2 country → ISO-3 label + flag emoji ─────────────── */
+
+const ISO3: Record<string, string> = {
+  UZ: "UZB",
+  RU: "RUS",
+  KZ: "KAZ",
+  KG: "KGZ",
+  TJ: "TJK",
+  TM: "TKM",
+  AF: "AFG",
+  PK: "PAK",
+  CN: "CHN",
+  IR: "IRN",
+  TR: "TUR",
+  AZ: "AZE",
+  GE: "GEO",
+  AM: "ARM",
+  UA: "UKR",
+  BY: "BLR",
+  IN: "IND",
+  AE: "ARE",
+};
+
+export function countryLabel(code: string | null | undefined): string {
+  if (!code) return "—";
+  const c = code.trim().toUpperCase();
+  return ISO3[c] ?? c;
+}
+
+export function countryFlag(code: string | null | undefined): string {
+  if (!code) return "🏳️";
+  const c = code.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(c)) return "🏳️";
+  return String.fromCodePoint(
+    ...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65),
+  );
+}
+
+/* ── payment ──────────────────────────────────────────────── */
+
+const CURRENCY_SYMBOL: Record<string, string> = {
+  USD: "$",
+  RUB: "₽",
+  EUR: "€",
+};
+
+function moneyText(amount: number, currency: string, lang: Lang): string {
+  const n = new Intl.NumberFormat(LOCALE_BY_LANG[lang]).format(amount);
+  const sym = CURRENCY_SYMBOL[currency];
+  if (currency === "USD") return `$${n}`;
+  if (sym) return `${sym}${n}`;
+  return `${n} ${currency}`;
+}
+
+export interface PriceView {
+  amount: string;
+  method: string | null;
+  note: string | null; // "negotiable" / "on request" sentinel handled by caller
+  kind: "amount" | "negotiable" | "request";
+}
+
+export function priceView(
+  payment: CargoPayment | null,
+  lang: Lang,
+): PriceView {
+  const t = TRANSLATIONS[lang];
+  if (!payment || payment.price_request) {
+    return { amount: t.table.onRequest, method: null, note: null, kind: "request" };
+  }
+  const method =
+    payment.prepayment_type ||
+    payment.remaining_type ||
+    payment.prepayment_items?.[0]?.method ||
+    payment.remaining_items?.[0]?.method ||
+    null;
+  const methodLabel = method
+    ? t.pay[method as keyof typeof t.pay] ?? method
+    : null;
+  return {
+    amount: moneyText(payment.total_amount, payment.total_currency, lang),
+    method: methodLabel,
+    note: payment.is_negotiable ? t.table.negotiable : null,
+    kind: "amount",
+  };
+}
+
+/* ── transport / cargo helpers ────────────────────────────── */
+
+export function transportLine(c: Cargo, lang: Lang): string {
+  const { truck, power } = TRANSLATIONS[lang];
+  const parts = [
+    c.truck_type ? truck[c.truck_type] ?? c.truck_type : null,
+    c.power_plate_type
+      ? power[c.power_plate_type] ?? c.power_plate_type
+      : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(" / ") : "—";
+}
+
+export function directionLabels(types: string[], lang: Lang): string {
+  if (!types?.length) return "";
+  const { load } = TRANSLATIONS[lang];
+  return types.map((x) => load[x] ?? x).join(", ");
+}
+
+/** Avatar initials from a contact name like "John_Doe" → "JD". */
+export function initials(name: string | null): string {
+  if (!name) return "—";
+  const words = name.split(/[\s_.-]+/).filter(Boolean);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return name.replace(/[^a-zA-Zа-яА-Я]/g, "").slice(0, 3).toUpperCase() || "—";
+}
+
+/* ── route ────────────────────────────────────────────────── */
+
 export function routeEndpoints(points: RoutePoint[]): {
   origin: RoutePoint | null;
   destination: RoutePoint | null;
@@ -97,20 +188,29 @@ export function routeEndpoints(points: RoutePoint[]): {
   const unloads = sorted.filter((p) => p.type === "UNLOAD");
   return {
     origin: loads[0] ?? sorted[0] ?? null,
-    destination: unloads[unloads.length - 1] ?? sorted[sorted.length - 1] ?? null,
+    destination:
+      unloads[unloads.length - 1] ?? sorted[sorted.length - 1] ?? null,
     stops: Math.max(0, sorted.length - 2),
   };
 }
 
-/** Build the text blob used for client-side search filtering. */
+/** Distinct values helper for building filter dropdowns from loaded data. */
+export function uniqueSorted(values: (string | null | undefined)[]): string[] {
+  return [...new Set(values.filter((v): v is string => !!v && v !== "—"))].sort(
+    (a, b) => a.localeCompare(b),
+  );
+}
+
+/** Text blob used for the client-side search box. */
 export function cargoSearchIndex(cargo: Cargo, lang: Lang): string {
-  const parts: string[] = [
+  return [
     cargoTypeName(cargo.cargo_type, lang),
     cargo.name ?? "",
     cargo.contact_name ?? "",
     cargo.contact_phone ?? "",
     cargo.truck_type ?? "",
-    ...cargo.route_points.flatMap((p) => [p.city_name, p.address]),
-  ];
-  return parts.join(" ").toLowerCase();
+    ...cargo.route_points.flatMap((p) => [p.city_name, p.city_code, p.address]),
+  ]
+    .join(" ")
+    .toLowerCase();
 }

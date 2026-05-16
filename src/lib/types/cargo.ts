@@ -78,6 +78,7 @@ export interface Cargo {
   adr_enabled: boolean;
   adr_class: string | null;
   is_two_drivers_required: boolean;
+  is_liked: boolean;
   vehicles_amount: number | null;
   vehicles_left: number | null;
   contact_name: string | null;

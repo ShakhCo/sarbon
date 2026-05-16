@@ -6,9 +6,9 @@ export function EmptyState({ filtered }: { filtered: boolean }) {
   const { t } = useI18n();
 
   return (
-    <div className="flex flex-col items-center border border-dashed border-line-strong bg-surface px-6 py-20 text-center">
-      <div className="flex size-14 items-center justify-center border border-line-strong bg-surface-2 text-ink-faint">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <div className="flex flex-col items-center rounded-[var(--radius-card)] border border-line bg-card px-6 py-20 text-center shadow-card">
+      <div className="grid size-16 place-items-center rounded-full bg-card-2 text-faint">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path
             d="M3 7l9-4 9 4-9 4-9-4Zm0 0v10l9 4 9-4V7M12 11v10"
             stroke="currentColor"
@@ -17,11 +17,11 @@ export function EmptyState({ filtered }: { filtered: boolean }) {
           />
         </svg>
       </div>
-      <h2 className="font-display mt-4 text-lg font-semibold text-ink">
+      <h2 className="mt-5 text-lg font-bold text-ink-title">
         {t.states.emptyTitle}
       </h2>
-      <p className="mt-1 max-w-sm text-sm text-ink-soft">
-        {filtered ? t.states.emptyAfterFilter : t.states.emptyBody}
+      <p className="mt-1.5 max-w-sm text-sm text-muted">
+        {filtered ? t.states.emptyFiltered : t.states.emptyBody}
       </p>
     </div>
   );
