@@ -4,6 +4,14 @@ import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Cargo } from "@/lib/types/cargo";
 import { routeEndpoints } from "@/lib/utils/format";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   CargoCell,
   OrdererCell,
   PlaceCell,
@@ -16,98 +24,64 @@ export function CargoTable({ items }: { items: Cargo[] }) {
   const { t } = useI18n();
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-card shadow-card">
+    <div className="overflow-hidden rounded-xl border bg-card">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1140px] table-fixed border-collapse text-left">
-          <colgroup>
-            <col className="w-[14%]" />
-            <col className="w-[14%]" />
-            <col className="w-[12%]" />
-            <col className="w-[18%]" />
-            <col className="w-[20%]" />
-            <col className="w-[17%]" />
-            <col className="w-[5%]" />
-          </colgroup>
-          <thead>
-            <tr className="border-b border-line bg-card-2">
-              <Th>{t.table.from}</Th>
-              <Th>{t.table.to}</Th>
-              <Th>{t.table.price}</Th>
-              <Th>{t.table.cargo}</Th>
-              <Th>{t.table.transport}</Th>
-              <Th>{t.table.orderer}</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((c, idx) => {
+        <Table className="min-w-[1100px]">
+          <TableHeader>
+            <TableRow className="bg-muted/50 hover:bg-muted/50">
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.from}
+              </TableHead>
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.to}
+              </TableHead>
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.price}
+              </TableHead>
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.cargo}
+              </TableHead>
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.transport}
+              </TableHead>
+              <TableHead className="px-4 uppercase tracking-wide">
+                {t.table.orderer}
+              </TableHead>
+              <TableHead className="px-4" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((c) => {
               const { origin, destination } = routeEndpoints(c.route_points);
               return (
-                <tr
-                  key={c.id}
-                  className="rise border-b border-line transition-colors last:border-b-0 hover:bg-card-2"
-                  style={{ animationDelay: `${Math.min(idx, 12) * 22}ms` }}
-                >
-                  <Td>
+                <TableRow key={c.id}>
+                  <TableCell className="px-4 py-4 align-top">
                     <PlaceCell point={origin} />
-                  </Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <PlaceCell point={destination} />
-                  </Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <PriceCell cargo={c} />
-                  </Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <CargoCell cargo={c} />
-                  </Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <TransportCell cargo={c} />
-                  </Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <OrdererCell cargo={c} />
-                  </Td>
-                  <Td className="pr-4">
+                  </TableCell>
+                  <TableCell className="px-4 py-4 align-top">
                     <RowActions liked={c.is_liked} />
-                  </Td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
-  );
-}
-
-function Th({
-  children,
-  className = "",
-}: {
-  children?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <th
-      scope="col"
-      className={`col-label whitespace-nowrap border-r border-line px-4 py-3 last:border-r-0 ${className}`}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <td
-      className={`border-r border-line px-4 py-4 align-top last:border-r-0 ${className}`}
-    >
-      {children}
-    </td>
   );
 }

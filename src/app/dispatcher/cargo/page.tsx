@@ -21,6 +21,9 @@ import { Pagination } from "@/components/cargo/Pagination";
 import { LoadingSkeleton } from "@/components/states/LoadingSkeleton";
 import { ErrorState } from "@/components/states/ErrorState";
 import { EmptyState } from "@/components/states/EmptyState";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { MessageCircle, Search } from "lucide-react";
 
 const DEFAULT_FILTERS: FilterState = {
   fromCity: "",
@@ -131,39 +134,34 @@ export default function DispatcherCargoPage() {
 
       <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 lg:px-8 lg:py-8">
         {/* Breadcrumb + title + search */}
-        <nav className="text-sm text-muted">
+        <nav className="text-sm text-muted-foreground">
           <span>{t.breadcrumbHome}</span>
-          <span className="mx-2 text-faint">/</span>
-          <span className="text-ink">{t.pageTitle}</span>
+          <span className="mx-2 text-muted-foreground/60">/</span>
+          <span className="text-foreground">{t.pageTitle}</span>
         </nav>
 
         <div className="mb-6 mt-3 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-2xl font-extrabold tracking-tight text-ink-title sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
               {t.pageTitle}
             </h1>
             {status === "success" && (
-              <span className="tnum text-sm font-medium text-muted">
+              <span className="text-sm font-medium tabular-nums text-muted-foreground">
                 · {t.found(total)}
               </span>
             )}
           </div>
 
           <div className="relative w-full sm:w-80">
-            <input
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchPlaceholder}
               aria-label={t.searchPlaceholder}
-              className="h-11 w-full rounded-[10px] border border-input-line bg-card pl-4 pr-12 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-brand"
+              className="pl-9"
             />
-            <span className="absolute right-1.5 top-1.5 grid size-8 place-items-center rounded-lg bg-brand text-white">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.7" />
-                <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-              </svg>
-            </span>
           </div>
         </div>
 
@@ -192,8 +190,8 @@ export default function DispatcherCargoPage() {
               <CargoTable items={visible} />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:hidden">
-              {visible.map((c, i) => (
-                <CargoCard key={c.id} cargo={c} index={i} />
+              {visible.map((c) => (
+                <CargoCard key={c.id} cargo={c} />
               ))}
             </div>
 
@@ -217,21 +215,14 @@ export default function DispatcherCargoPage() {
 
       <Footer />
 
-      {/* Floating support button (visual parity with the product) */}
-      <button
-        type="button"
+      {/* Floating support button */}
+      <Button
+        size="icon-lg"
         aria-label="support chat"
-        className="fixed bottom-6 right-6 z-30 grid size-12 place-items-center rounded-full bg-brand text-white shadow-pop transition-transform hover:scale-105"
+        className="fixed bottom-6 right-6 z-30 rounded-full shadow-lg"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="M4 5h16v11H8l-4 4V5Z"
-            stroke="currentColor"
-            strokeWidth="1.7"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+        <MessageCircle />
+      </Button>
     </>
   );
 }

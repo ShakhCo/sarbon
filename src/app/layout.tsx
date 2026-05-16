@@ -3,8 +3,9 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
 
+// shadcn is font-agnostic; Manrope carries the Cyrillic the RU locale needs.
 const sans = Manrope({
-  variable: "--font-manrope",
+  variable: "--font-sans",
   subsets: ["latin", "latin-ext", "cyrillic"],
   display: "swap",
 });
@@ -28,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uz" className={`${sans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-bg">
+      <body className="flex min-h-full flex-col font-sans">
         <I18nProvider>{children}</I18nProvider>
       </body>
     </html>

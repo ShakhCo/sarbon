@@ -35,9 +35,9 @@ pagination and three-language support (UZ / RU / EN).
 | Framework   | **Next.js 16** (App Router) + **React 19**        |
 | Language    | **TypeScript** (strict)                           |
 | HTTP        | **Axios** (browser → same-origin proxy)           |
-| Styling     | **Tailwind CSS v4**                               |
-| Fonts       | `next/font` — Geologica · Onest · JetBrains Mono  |
-| i18n        | Lightweight React Context (no heavy dependency)   |
+| UI          | **shadcn/ui** (Base UI primitives) + **Tailwind CSS v4** |
+| Fonts       | `next/font` — Manrope (Latin + Cyrillic)          |
+| i18n        | Lightweight React Context + `useSyncExternalStore` |
 | Deployment  | **Vercel** (recommended)                          |
 
 ---

@@ -1,7 +1,10 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { CargoApiError } from "@/lib/api/cargo";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export function ErrorState({
   error,
@@ -17,37 +20,21 @@ export function ErrorState({
       : t.states.errorUpstream;
 
   return (
-    <div
-      role="alert"
-      className="flex flex-col items-center rounded-[var(--radius-card)] border border-line bg-card px-6 py-16 text-center shadow-card"
+    <Alert
+      variant="destructive"
+      className="flex flex-col items-center gap-4 px-6 py-16 text-center"
     >
-      <div className="grid size-14 place-items-center rounded-full bg-red-soft text-red">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="M12 8v5m0 3.5h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.42 0Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+      <AlertTriangle className="size-10" />
+      <div>
+        <AlertTitle className="text-lg">{t.states.errorTitle}</AlertTitle>
+        <AlertDescription className="mt-1 justify-center">
+          {message}
+          {error?.statusCode ? ` (HTTP ${error.statusCode})` : ""}
+        </AlertDescription>
       </div>
-      <h2 className="mt-5 text-lg font-bold text-ink-title">
-        {t.states.errorTitle}
-      </h2>
-      <p className="mt-1.5 max-w-sm text-sm text-muted">{message}</p>
-      {error?.statusCode && (
-        <code className="tnum mt-2 text-xs text-faint">
-          HTTP {error.statusCode}
-        </code>
-      )}
-      <button
-        type="button"
-        onClick={onRetry}
-        className="mt-6 rounded-[10px] bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-strong"
-      >
+      <Button variant="outline" onClick={onRetry}>
         {t.states.retry}
-      </button>
-    </div>
+      </Button>
+    </Alert>
   );
 }
