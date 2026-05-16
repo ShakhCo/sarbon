@@ -6,11 +6,12 @@ services:
     container_name: sarbon-dispatcher
     ports:
       - "8770:8770"
+    # Provide the env on the host before `docker compose up`:
+    #   cp .env.example .env.local   (then fill in the tokens)
+    # Either file is picked up; both are optional and untracked.
     env_file:
-      # Committed task credentials — makes a clean clone runnable.
-      - path: .env.docker
-        required: true
-      # Optional local override (untracked); wins over .env.docker.
       - path: .env.local
+        required: false
+      - path: .env.docker
         required: false
     restart: unless-stopped
