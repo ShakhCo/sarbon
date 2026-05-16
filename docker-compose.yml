@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: .
+    image: sarbon-dispatcher
+    container_name: sarbon-dispatcher
+    ports:
+      - "8770:8770"
+    environment:
+      # API base has a sane default; the tokens come from .env.local
+      SARBON_API_BASE_URL: ${SARBON_API_BASE_URL:-https://api.sarbon.me/v1}
+    env_file:
+      - .env.local
+    restart: unless-stopped
