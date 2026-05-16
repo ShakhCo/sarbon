@@ -89,7 +89,7 @@ function Th({
   return (
     <th
       scope="col"
-      className={`col-label whitespace-nowrap px-4 py-3 ${className}`}
+      className={`col-label whitespace-nowrap border-r border-line px-4 py-3 last:border-r-0 ${className}`}
     >
       {children}
     </th>
@@ -103,5 +103,11 @@ function Td({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <td className={`px-4 py-4 align-top ${className}`}>{children}</td>;
+  return (
+    <td
+      className={`border-r border-line px-4 py-4 align-top last:border-r-0 ${className}`}
+    >
+      {children}
+    </td>
+  );
 }
