@@ -218,10 +218,10 @@ export function TransportCell({ cargo }: { cargo: Cargo }) {
         <span>{line}</span>
       </div>
       {(loading || unloading) && (
-        <div className="mt-1.5 space-y-1 text-[13px] text-muted">
+        <div className="mt-1.5 space-y-0.5 text-[13px] leading-snug text-muted">
           {loading && (
             <div className="flex items-start gap-1.5">
-              <span className="mt-0.5 shrink-0 text-green">
+              <span className="mt-px shrink-0 text-green">
                 <IconLoad up />
               </span>
               <span>{loading}</span>
@@ -229,7 +229,7 @@ export function TransportCell({ cargo }: { cargo: Cargo }) {
           )}
           {unloading && (
             <div className="flex items-start gap-1.5">
-              <span className="mt-0.5 shrink-0 text-red">
+              <span className="mt-px shrink-0 text-red">
                 <IconLoad up={false} />
               </span>
               <span>{unloading}</span>
